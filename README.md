@@ -59,6 +59,9 @@ screen and turns your mouse/keyboard into taps, swipes, and text.
 
 ## Quick start
 
+> **New to this? Follow [`docs/WALKTHROUGH.md`](docs/WALKTHROUGH.md)** — the same
+> steps expanded click-by-click. The condensed version is below.
+
 ```powershell
 # 1. install python deps
 python -m venv .venv; .\.venv\Scripts\Activate.ps1
