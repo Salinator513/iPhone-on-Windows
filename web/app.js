@@ -1,12 +1,15 @@
-// iPhone on Windows — tiny front-end.
-// Polls WDA screenshots for the picture, maps mouse/keyboard onto WDA control.
+// iPhone on Windows — front-end.
+// Video: MJPEG stream when qvh is configured, else chained screenshot polling.
+// Control: mouse → tap/swipe, optional physical keyboard → focused field.
 
 const screen = document.getElementById("screen");
 const offline = document.getElementById("offline");
 const statusEl = document.getElementById("status");
 
-let fps = 5; // overwritten by /api/status
+let fps = 5; // from /api/status
+let videoMode = "screenshot"; // or "qvh"
 let dragStart = null;
+let screenTimer = null;
 
 function postJSON(path, body) {
   return fetch(path, {
@@ -16,19 +19,46 @@ function postJSON(path, body) {
   }).then((r) => r.json());
 }
 
-// ---- screenshot mirror -------------------------------------------------
-function refreshScreen() {
+// ---- video -------------------------------------------------------------
+function onFrameOk() {
+  screen.classList.remove("hidden");
+  offline.classList.add("hidden");
+}
+function onFrameFail() {
+  screen.classList.add("hidden");
+  offline.classList.remove("hidden");
+}
+
+function pollScreenshot() {
+  // chain requests: fetch the next frame only once the current one decodes,
+  // so a slow phone/USB link never piles up in-flight requests.
   const img = new Image();
   img.onload = () => {
     screen.src = img.src;
-    screen.classList.remove("hidden");
-    offline.classList.add("hidden");
+    onFrameOk();
+    screenTimer = setTimeout(pollScreenshot, Math.max(0, 1000 / fps - 30));
   };
   img.onerror = () => {
-    screen.classList.add("hidden");
-    offline.classList.remove("hidden");
+    onFrameFail();
+    screenTimer = setTimeout(pollScreenshot, 1000);
   };
   img.src = "/api/screenshot?t=" + Date.now();
+}
+
+function startVideo() {
+  if (screenTimer) {
+    clearTimeout(screenTimer);
+    screenTimer = null;
+  }
+  if (videoMode === "qvh") {
+    screen.onload = onFrameOk;
+    screen.onerror = onFrameFail;
+    screen.src = "/api/stream.mjpeg";
+  } else {
+    screen.onload = null;
+    screen.onerror = null;
+    pollScreenshot();
+  }
 }
 
 // ---- click → tap, drag → swipe ----------------------------------------
@@ -38,7 +68,6 @@ function normCoords(ev) {
   const y = (ev.clientY - rect.top) / rect.height;
   return { x: Math.min(Math.max(x, 0), 1), y: Math.min(Math.max(y, 0), 1) };
 }
-
 screen.addEventListener("mousedown", (ev) => {
   dragStart = normCoords(ev);
 });
@@ -56,17 +85,55 @@ screen.addEventListener("mouseup", (ev) => {
   dragStart = null;
 });
 
-// ---- side-panel actions ------------------------------------------------
-document.getElementById("home").onclick = () => postJSON("/api/home");
+// ---- hardware buttons --------------------------------------------------
+document.querySelectorAll(".buttons button").forEach((btn) => {
+  btn.onclick = () => {
+    const act = btn.dataset.act;
+    if (act === "home") postJSON("/api/home");
+    else if (act === "recents") postJSON("/api/recents");
+    else if (act === "lock") postJSON("/api/lock");
+    else postJSON("/api/button/" + act);
+  };
+});
+
+// ---- keyboard ----------------------------------------------------------
+const kbdToggle = document.getElementById("kbd-toggle");
+function onKeyDown(ev) {
+  if (ev.metaKey || ev.ctrlKey || ev.altKey) return; // let shortcuts through
+  let key = null;
+  if (ev.key === "Enter") key = "\n";
+  else if (ev.key === "Backspace") key = "\b";
+  else if (ev.key === "Tab") key = "\t";
+  else if (ev.key.length === 1) key = ev.key;
+  if (key === null) return;
+  ev.preventDefault();
+  postJSON("/api/keys", { keys: [key] });
+}
+kbdToggle.addEventListener("change", () => {
+  if (kbdToggle.checked) document.addEventListener("keydown", onKeyDown);
+  else document.removeEventListener("keydown", onKeyDown);
+});
 
 document.getElementById("type-btn").onclick = () => {
   const input = document.getElementById("type-input");
   if (input.value) postJSON("/api/type", { text: input.value });
 };
 
+// ---- text / clipboard --------------------------------------------------
 document.getElementById("get-text").onclick = async () => {
+  const out = document.getElementById("text-out");
   const r = await fetch("/api/text").then((r) => r.json());
-  document.getElementById("text-out").textContent = r.source || r.error || "(empty)";
+  out.textContent = "";
+  const lines = r.lines || [];
+  if (!lines.length) {
+    out.textContent = r.error || "(no text found)";
+    return;
+  }
+  for (const line of lines) {
+    const div = document.createElement("div");
+    div.textContent = line;
+    out.appendChild(div);
+  }
 };
 
 document.getElementById("clip-get").onclick = async () => {
@@ -77,17 +144,21 @@ document.getElementById("clip-set").onclick = () => {
   postJSON("/api/clipboard", { text: document.getElementById("clip-input").value });
 };
 
-// ---- status bar --------------------------------------------------------
-function tick(mark) {
-  return mark ? "✓" : "✗";
-}
+// ---- status ------------------------------------------------------------
+const tick = (ok) => (ok ? "✓" : "✗");
 async function refreshStatus() {
   try {
     const s = await fetch("/api/status").then((r) => r.json());
     if (s.screenshot_fps) fps = s.screenshot_fps;
+    const wantMode = s.qvh_stream ? "qvh" : "screenshot";
+    if (wantMode !== videoMode) {
+      videoMode = wantMode;
+      startVideo();
+    }
     statusEl.textContent =
       `go-ios ${tick(s.go_ios)}   qvh ${tick(s.qvh)}   ` +
-      `WDA ${s.wda_reachable ? "✓ connected" : "✗ not reachable"}`;
+      `WDA ${s.wda_reachable ? "✓ connected" : "✗ not reachable"}   ` +
+      `[${videoMode}]`;
     statusEl.className = "status " + (s.wda_reachable ? "ok" : "bad");
   } catch (e) {
     statusEl.textContent = "backend unreachable";
@@ -95,13 +166,7 @@ async function refreshStatus() {
   }
 }
 
-// ---- loops -------------------------------------------------------------
-let screenTimer = null;
-function startLoops() {
-  refreshScreen();
-  refreshStatus();
-  if (screenTimer) clearInterval(screenTimer);
-  screenTimer = setInterval(refreshScreen, Math.max(200, 1000 / fps));
-  setInterval(refreshStatus, 3000);
-}
-startLoops();
+// ---- boot --------------------------------------------------------------
+startVideo();
+refreshStatus();
+setInterval(refreshStatus, 3000);

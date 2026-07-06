@@ -26,18 +26,27 @@ screen and turns your mouse/keyboard into taps, swipes, and text.
 
 | Feature | How | Status |
 |---|---|---|
-| See the screen | poll WDA `/screenshot` (PNG) | ✅ works (low FPS) |
+| See the screen (default) | poll WDA `/screenshot` (PNG) | ✅ works (few FPS) |
+| See the screen (smooth) | **QVH** → MJPEG stream | ✅ wired — needs `qvh_cmd` + a device |
 | Tap / swipe | WDA W3C pointer actions | ✅ |
 | Type text | WDA `/wda/keys` into focused field | ✅ |
-| Home button | WDA `/wda/homescreen` | ✅ |
-| Read on-screen text | WDA accessibility source | ✅ |
+| Physical keyboard | browser keydown → focused field | ✅ (toggle in UI) |
+| Hardware buttons | home · app switcher · lock · volume | ✅ |
+| Read on-screen text | WDA accessibility tree → selectable list | ✅ |
 | Clipboard both ways | WDA `get/setPasteboard` | ✅ (WDA must be foreground) |
-| Smooth high-FPS video | **QVH** over USB | 🔜 roadmap (see below) |
+| Survives WDA restarts | session auto-recreates + retries | ✅ |
 
-> The screenshot-poll mirror is intentionally simple (a few FPS). For a fluid,
-> high-frame-rate picture, [QVH](https://github.com/danielpaulus/quicktime_video_hack)
-> taps the hidden QuickTime USB video stream — that's the planned upgrade for the
-> video path. Control stays on WDA either way.
+### Video modes
+
+- **`screenshot`** (default) — polls WDA `/screenshot`, a few FPS, zero extra
+  dependencies. Always works once WDA is up.
+- **`qvh`** — smooth, high-frame-rate video from
+  [QVH](https://github.com/danielpaulus/quicktime_video_hack), which taps the
+  hidden QuickTime USB video stream. Set `"video": "qvh"` and a `qvh_cmd` that
+  emits MJPEG (a `qvh | ffmpeg` pipeline — see
+  [`docs/SETUP.md`](docs/SETUP.md)). The backend re-serves those frames at
+  `/api/stream.mjpeg`; the UI switches to it automatically. Control stays on WDA
+  either way.
 
 ## Requirements
 
@@ -65,7 +74,11 @@ python -m uvicorn server.main:app --host 127.0.0.1 --port 8000
 #    open http://127.0.0.1:8000
 ```
 
-Click = tap · drag = swipe · use the side panel for typing, text, and clipboard.
+Click = tap · drag = swipe. The side panel has hardware buttons (home, app
+switcher, lock, volume), a **keyboard-capture** toggle (your physical typing
+goes to the phone's focused field), clipboard sync, and a selectable dump of the
+screen's text. For smooth video instead of the screenshot poll, enable `qvh`
+mode (see below).
 
 ## Config
 
@@ -90,10 +103,12 @@ screenshot FPS, host/port). Defaults work for the standard setup.
 - A **free** Apple ID re-signs WDA every **7 days** — you'll re-install weekly
   (AltStore can auto-refresh). A paid developer account lasts a year. See
   `docs/SETUP.md`.
-- Built and reviewed without a physical device in the loop, so the **control
-  endpoints follow standard WDA conventions but haven't been exercised against a
-  live phone** — expect to tweak an endpoint or two per your WDA build. The
-  server, web UI, and status checks run without a device.
+- Built without a physical device in the loop. **Verified here:** the server,
+  web UI, status checks, every endpoint's error handling, and the full MJPEG
+  streaming path (with a synthetic frame source). **Not yet exercised on a live
+  phone:** the actual WDA taps/swipes/keys and the real `qvh_cmd` pipeline —
+  both follow standard conventions but expect to finalize `qvh_cmd` and maybe
+  tweak an endpoint per your WDA build.
 
 ## License
 

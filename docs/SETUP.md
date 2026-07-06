@@ -77,6 +77,37 @@ python -m uvicorn server.main:app --host 127.0.0.1 --port 8000
 Open <http://127.0.0.1:8000>. The status bar shows whether `go-ios`, `qvh`, and
 WDA are detected.
 
+## Optional: smooth video with QVH
+
+The default `screenshot` mode needs nothing extra. For fluid, high-FPS video:
+
+1. Install [`qvh`](https://github.com/danielpaulus/quicktime_video_hack) **and
+   `ffmpeg`**, both on your `PATH`.
+2. Confirm qvh sees the phone (it uses the same USB device go-ios does).
+3. In `config.json` set `video` to `qvh` and a `qvh_cmd` that writes **MJPEG
+   (concatenated JPEG frames) to stdout**:
+
+   ```json
+   {
+     "video": "qvh",
+     "qvh_cmd": ["cmd", "/c", "qvh gstreamer <emit h264...> | ffmpeg -i - -f mpjpeg -"]
+   }
+   ```
+
+The app runs `qvh_cmd`, splits its stdout into JPEG frames, and re-serves them at
+`/api/stream.mjpeg`; the UI switches to it automatically. The command only has to
+emit MJPEG on stdout — the usual shape is:
+
+```
+qvh (QuickTime USB video) → H.264 → ffmpeg → MJPEG (stdout)
+```
+
+Run `qvh gstreamer --examples` to see the exact streaming pipelines your qvh
+build supports, then transcode to `mjpeg` with ffmpeg. Because those flags vary
+by qvh version and platform, **`qvh_cmd` is the one value to finalize against
+your device** — until it's set, the app stays in the (always-working)
+screenshot mode.
+
 ## Troubleshooting
 
 - **`ios list` shows nothing** → cable/trust issue, or Microsoft-Store

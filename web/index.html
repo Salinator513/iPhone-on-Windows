@@ -25,12 +25,22 @@
       </section>
 
       <aside class="controls">
-        <button id="home" class="wide">⌂ Home</button>
+        <div class="buttons">
+          <button data-act="home" title="Home">⌂</button>
+          <button data-act="recents" title="App switcher">▤</button>
+          <button data-act="lock" title="Lock">⏻</button>
+          <button data-act="volumeUp" title="Volume up">🔊</button>
+          <button data-act="volumeDown" title="Volume down">🔉</button>
+        </div>
 
         <div class="group">
-          <label>Type into focused field</label>
+          <label>Keyboard</label>
+          <label class="switch">
+            <input type="checkbox" id="kbd-toggle" />
+            <span>Capture my keyboard → focused field</span>
+          </label>
           <div class="row">
-            <input id="type-input" placeholder="text to type…" />
+            <input id="type-input" placeholder="or type here…" />
             <button id="type-btn">Send</button>
           </div>
         </div>
@@ -46,9 +56,9 @@
         </div>
 
         <div class="group">
-          <label>On-screen text (accessibility)</label>
+          <label>On-screen text (selectable)</label>
           <button id="get-text" class="wide">Fetch text</button>
-          <pre id="text-out"></pre>
+          <div id="text-out" class="text-out"></div>
         </div>
       </aside>
     </main>

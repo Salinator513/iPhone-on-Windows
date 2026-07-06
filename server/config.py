@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, field, fields
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -14,6 +14,11 @@ class Config:
     host: str = "127.0.0.1"
     port: int = 8000
     screenshot_fps: int = 5
+    # "screenshot" (always works) or "qvh" (smooth high-FPS, needs qvh_cmd)
+    video: str = "screenshot"
+    # command that writes concatenated JPEG frames (MJPEG) to stdout.
+    # empty = disabled. See docs/SETUP.md for a qvh + ffmpeg example.
+    qvh_cmd: list[str] = field(default_factory=list)
 
     @classmethod
     def load(cls) -> "Config":
