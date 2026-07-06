@@ -1,0 +1,17 @@
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# local config + captured media
+config.json
+*.h264
+*.wav
+*.mp4
+
+# os / editor
+.DS_Store
+.vscode/
+.idea/

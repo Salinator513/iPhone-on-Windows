@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>iPhone on Windows</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>iPhone&nbsp;on&nbsp;Windows</h1>
+      <div id="status" class="status">checking…</div>
+    </header>
+
+    <main>
+      <section class="phone">
+        <div class="phone-frame">
+          <img id="screen" alt="iPhone screen" />
+          <div id="offline" class="offline">
+            No screen yet.<br />Start WDA &amp; go-ios — see <code>docs/SETUP.md</code>.
+          </div>
+        </div>
+        <p class="hint">click = tap &nbsp;·&nbsp; drag = swipe</p>
+      </section>
+
+      <aside class="controls">
+        <button id="home" class="wide">⌂ Home</button>
+
+        <div class="group">
+          <label>Type into focused field</label>
+          <div class="row">
+            <input id="type-input" placeholder="text to type…" />
+            <button id="type-btn">Send</button>
+          </div>
+        </div>
+
+        <div class="group">
+          <label>Clipboard (phone ↔ laptop)</label>
+          <input id="clip-input" placeholder="clipboard text…" />
+          <div class="row">
+            <button id="clip-get">⭳ From phone</button>
+            <button id="clip-set">⭱ To phone</button>
+          </div>
+          <small>reads need WDA in the foreground</small>
+        </div>
+
+        <div class="group">
+          <label>On-screen text (accessibility)</label>
+          <button id="get-text" class="wide">Fetch text</button>
+          <pre id="text-out"></pre>
+        </div>
+      </aside>
+    </main>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>
