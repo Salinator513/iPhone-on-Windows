@@ -1,211 +1,227 @@
-# Step-by-step walkthrough
+# Complete beginner walkthrough
 
-Granular setup from zero to "I can see and control my iPhone on Windows."
-Every action spelled out. Do the parts in order.
+No prior knowledge assumed. One single path — just do each step in order.
 
----
-
-## Part A — Install the tools on Windows
-
-### 1. Install Python
-1. Go to <https://python.org/downloads> and click **Download Python 3.x**.
-2. Run the installer.
-3. **Check the box "Add python.exe to PATH"** at the bottom (important).
-4. Click **Install Now**, wait, then **Close**.
-5. Open **PowerShell** (Start menu → type "PowerShell" → Enter) and check:
-   ```
-   python --version
-   ```
-   You should see `Python 3.x`. If "not recognized," reinstall and re-check the PATH box.
-
-### 2. Download the project
-1. If you have git: in PowerShell run
-   ```
-   git clone -b claude/iphone-view-windows-bpix8q https://github.com/Salinator513/iPhone-on-Windows.git
-   cd iPhone-on-Windows
-   ```
-2. No git? On GitHub, open the repo → switch the branch dropdown to
-   `claude/iphone-view-windows-bpix8q` → **Code ▾ → Download ZIP** → unzip it →
-   remember the folder.
-3. Keep this PowerShell window open in that folder (`cd` into it if needed).
-
-### 3. Install go-ios (the USB bridge — runs on the PC, not the phone)
-1. Go to <https://github.com/danielpaulus/go-ios/releases>.
-2. Under the latest release's **Assets**, download the **Windows** zip
-   (e.g. `go-ios-win.zip`).
-3. Unzip it — inside is `ios.exe`.
-4. Make a folder `C:\tools`, move `ios.exe` into it.
-5. Add it to PATH:
-   - Start menu → type **"environment variables"** → open **Edit the system
-     environment variables**.
-   - Click **Environment Variables…**
-   - Under **User variables**, select **Path** → **Edit… → New** → type
-     `C:\tools` → **OK** on every window.
-6. **Close and reopen** PowerShell, then check:
-   ```
-   ios -h
-   ```
-   You should see go-ios help text.
-
-### 4. Fix the iTunes/iCloud driver gotcha
-1. Start menu → **Add or remove programs**.
-2. If you see **iTunes** or **iCloud** marked "Microsoft Store," **uninstall
-   them** (the Store versions hide the phone from go-ios/Sideloadly).
-3. If you need them, reinstall from <https://apple.com> (the classic installers),
-   not the Store.
-
-### 5. Install Sideloadly (signs the WDA app with a free Apple ID)
-1. Go to <https://sideloadly.app>, download the **Windows** version, install it.
-2. Leave it closed for now.
+### A few words you'll see
+- **PowerShell** — a window where you type commands. It comes free with Windows.
+  You'll open it a couple of times below; I show you exactly how each time.
+- **Folder** — a normal Windows folder, like you see in File Explorer.
+- **`.ipa`** — the file type for an iPhone app (like `.exe` is for Windows).
 
 ---
 
-## Part B — Put WebDriverAgent on the iPhone
+## STEP 1 — Install Python (the language the app runs on)
 
-### 6. Get a WebDriverAgent `.ipa`
-WDA is the small app that runs *on the phone* and receives taps/swipes.
-1. You need a prebuilt **`WebDriverAgent*.ipa`** file. Get it from a source you
-   trust — a community prebuilt runner, or build it once on a (cloud) Mac.
-2. Save the `.ipa` somewhere easy like your Downloads folder.
+1. Open a web browser, go to **https://python.org/downloads**
+2. Click the big **Download Python** button.
+3. Open the file it downloads (bottom of the browser, or your Downloads folder).
+4. In the installer window, **tick the checkbox at the bottom that says
+   "Add python.exe to PATH."** (This matters — don't skip it.)
+5. Click **Install Now**. Wait until it says success, then click **Close**.
 
-> This is the fiddliest step because Apple doesn't publish a ready-made `.ipa`.
-> If you can't find a trusted prebuilt one, a one-time build on a rented cloud
-> Mac (then reuse the `.ipa` forever) is the reliable route.
+---
 
-### 7. Plug in the iPhone and trust the PC
+## STEP 2 — Download the project files
+
+1. Make sure you're **signed in to GitHub** in your browser (the account that
+   owns this project).
+2. Click this link — it downloads the project as a zip:
+   **https://github.com/Salinator513/iPhone-on-Windows/archive/refs/heads/claude/iphone-view-windows-bpix8q.zip**
+3. Open your **Downloads** folder in File Explorer. You'll see a zip file named
+   like `iPhone-on-Windows-claude-...zip`.
+4. **Right-click it → "Extract All…" → Extract.** This makes a normal folder.
+5. Open that folder. Inside you'll see another folder (also starting with
+   `iPhone-on-Windows`). **That inner folder is your project folder** — the one
+   with `README.md`, `server`, `web`, `scripts` inside it.
+6. To keep things simple, **move that project folder to your Desktop** and
+   rename it to just **`iPhone-on-Windows`**.
+
+From now on, "the project folder" = this folder on your Desktop.
+
+---
+
+## STEP 3 — Get go-ios (connects the PC to the iPhone over USB)
+
+1. Go to **https://github.com/danielpaulus/go-ios/releases**
+2. Under the newest release, find **Assets** and download the **Windows** file
+   (its name has `win` in it, e.g. `go-ios-win.zip`).
+3. In Downloads, **right-click that zip → Extract All… → Extract.**
+4. Inside the extracted folder there's a file named **`ios.exe`**.
+5. **Copy `ios.exe` and paste it directly into your project folder** (next to
+   `README.md`). That's it — no settings to change.
+
+---
+
+## STEP 4 — Install Sideloadly (puts the iPhone app on your phone)
+
+1. Go to **https://sideloadly.app**
+2. Download the **Windows** version and install it (open the downloaded file,
+   click through).
+3. Close it for now.
+
+---
+
+## STEP 5 — Remove the wrong iTunes/iCloud (a common blocker)
+
+1. Press the **Start** button, type **"Add or remove programs"**, open it.
+2. Scroll the list. If you see **iTunes** or **iCloud** and it says
+   **"Microsoft Store"** under the name, click it → **Uninstall.**
+   (The Store versions block the phone connection. If you don't have them,
+   skip this step.)
+
+---
+
+## STEP 6 — Get the WebDriverAgent app file (the tricky one)
+
+You need a file named **`WebDriverAgent....ipa`**. This is the app that will run
+*on your iPhone* and receive your taps.
+
+- Apple doesn't hand out a ready-made one, so you download a pre-made copy from a
+  source you trust, **or** build one once on a rented Mac.
+- **This is the one genuinely hard step.** If you're not sure where to get it,
+  stop here and tell me — I'll help you find or build it. Don't guess with a
+  random download.
+
+Save the `.ipa` in your **Downloads** folder once you have it.
+
+---
+
+## STEP 7 — Plug in your iPhone
+
 1. Connect the iPhone to the laptop with a USB cable.
-2. On the phone a **"Trust This Computer?"** popup appears → tap **Trust** →
-   enter your passcode.
-3. Back in PowerShell, confirm go-ios sees it:
-   ```
-   ios list
-   ```
-   A device UDID (long string) should print.
-
-### 8. Sign + install WDA with Sideloadly
-1. Open **Sideloadly**.
-2. **Drag your WDA `.ipa`** into the Sideloadly window (or click the box and
-   pick it).
-3. In the **Apple ID** field, type your Apple ID email (a **free** one is fine).
-4. Click **Start**.
-5. When prompted, enter your Apple ID **password** (and the **2FA code** if asked).
-6. Watch the log at the bottom — it should end with **"Done"** / success. WDA is
-   now installed on the phone.
-
-> **Free Apple ID = 7-day limit.** After a week WDA stops launching; just repeat
-> step 8 to reinstall. (A paid $99/yr Apple Developer account lasts a year.)
-
-### 9. Trust the developer profile on the phone
-1. On the iPhone: **Settings → General → VPN & Device Management**.
-2. Under **Developer App**, tap your Apple ID.
-3. Tap **Trust "…"** → **Trust** in the confirmation.
-
-### 10. Turn on Developer Mode (iOS 16 and newer)
-1. On the iPhone: **Settings → Privacy & Security**.
-2. Scroll down to **Developer Mode** → toggle it **On**.
-3. The phone asks to **restart** → tap **Restart**.
-4. After reboot, a prompt appears → tap **Turn On** → enter passcode.
+2. On the **iPhone**, a popup says **"Trust This Computer?"** → tap **Trust** →
+   type your passcode.
 
 ---
 
-## Part C — Start the bridge (WDA + port forward)
+## STEP 8 — Put WebDriverAgent onto the phone with Sideloadly
 
-### 11. Open PowerShell as Administrator
-1. Start menu → type **PowerShell**.
-2. Right-click **Windows PowerShell → Run as administrator** → **Yes**.
-3. `cd` into the project folder, e.g.:
-   ```
-   cd C:\Users\<you>\iPhone-on-Windows
-   ```
+1. Open **Sideloadly**.
+2. **Drag your `WebDriverAgent….ipa` file into the Sideloadly window.**
+3. In the box labeled **Apple ID**, type your Apple ID email. A **free** Apple ID
+   is fine — you do NOT need a paid account.
+4. Click **Start** (bottom right).
+5. It asks for your Apple ID **password** → type it. If your Apple ID uses a
+   verification code, type that too.
+6. Watch the messages at the bottom. When it finishes with **"Done"**, the app
+   is on your phone.
 
-### 12. Run the launch script
-1. Run:
+> **Note:** with a free Apple ID this app **stops working after 7 days.** When
+> that happens, just repeat Step 8 to put it back.
+
+---
+
+## STEP 9 — Tell the iPhone to trust the app
+
+1. On the **iPhone**: open **Settings**.
+2. Tap **General** → **VPN & Device Management.**
+3. Under **Developer App**, tap your Apple ID email.
+4. Tap **Trust "…"**, then **Trust** again to confirm.
+
+---
+
+## STEP 10 — Turn on Developer Mode (iPhones on iOS 16 or newer)
+
+1. On the **iPhone**: **Settings** → **Privacy & Security.**
+2. Scroll to the bottom → tap **Developer Mode** → turn the switch **On.**
+3. It asks to restart the phone → tap **Restart.**
+4. After it restarts, a message pops up → tap **Turn On** → enter your passcode.
+
+---
+
+## STEP 11 — Start the connection (special "Administrator" window)
+
+1. Press **Start**, type **PowerShell.**
+2. **Right-click** "Windows PowerShell" → **Run as administrator** → click
+   **Yes.** A blue window opens.
+3. You need to point it at your project folder. Type `cd ` (the letters c, d,
+   then a space), then:
+   - Open your project folder in File Explorer, click once in the **address bar**
+     at the top (it turns into text), copy that text.
+   - Back in the blue window, **right-click** to paste it, then press **Enter.**
+   - (Example of what you typed: `cd C:\Users\You\Desktop\iPhone-on-Windows`)
+4. Now type this and press **Enter**:
    ```
    .\scripts\start-wda.ps1
    ```
-2. If you get a script-blocked error, run this once then retry:
+5. If it complains about scripts being disabled, type this line, press Enter,
+   then repeat step 4:
    ```
    Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
    ```
-3. Three windows/steps happen: **tunnel** (needs admin), **runwda** (launches
-   WDA on the phone), **forward** (pipes port 8100 to the PC). **Leave those
-   windows open** — closing them stops the bridge.
+6. A few small windows pop open and stay open. **Leave them open** — they're the
+   live connection. (Closing them disconnects the phone.)
 
-   *Manual equivalent if the script misbehaves — one command per window:*
+---
+
+## STEP 12 — Check the connection works
+
+1. Open your web browser to: **http://127.0.0.1:8100/status**
+2. You should see a page of text that includes **`"state" : "success"`.**
+3. If instead you get an error, the app on the phone probably isn't running —
+   redo Step 8 and Step 11. (More help in Troubleshooting below.)
+
+---
+
+## STEP 13 — Start the app (a second, normal window)
+
+1. Open your project folder in **File Explorer.**
+2. Click once in the **address bar** at the top, type **`powershell`** over the
+   text that's there, and press **Enter.** A window opens already pointed at your
+   project folder.
+3. Type these three lines, pressing **Enter** after each. Wait for each to finish:
    ```
-   ios tunnel start          # admin window; leave open (iOS 17+)
-   ios runwda                # leave open
-   ios forward 8100 8100     # leave open
+   python -m venv .venv
+   .\.venv\Scripts\Activate.ps1
+   pip install -r requirements.txt
    ```
-
-### 13. Verify WDA is alive
-1. Open a browser to <http://127.0.0.1:8100/status>.
-2. You should see JSON containing `"state" : "success"`.
-3. Nothing / error? WDA isn't running or the signature expired — redo steps 8
-   and 12. (See Troubleshooting.)
-
----
-
-## Part D — Run the app
-
-### 14. Create the environment + install dependencies (first time only)
-In a **normal** (non-admin) PowerShell, in the project folder:
-```
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-```
-If activation is blocked, run `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` then retry.
-
-### 15. Start the server
-```
-python -m uvicorn server.main:app --host 127.0.0.1 --port 8000
-```
-Leave it running. You'll see `Uvicorn running on http://127.0.0.1:8000`.
-
-### 16. Open the app
-1. Browser → <http://127.0.0.1:8000>.
-2. The status bar (top right) should read **`WDA ✓ connected`**.
-3. Your phone screen appears in the frame. 🎉
+   (The first two are instant; the third downloads a few things — give it a
+   minute.)
+4. If line 2 complains about scripts, type
+   `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass`, press Enter, and
+   redo the three lines.
+5. Now start the app:
+   ```
+   python -m uvicorn server.main:app --host 127.0.0.1 --port 8000
+   ```
+6. It prints **`Uvicorn running on http://127.0.0.1:8000`** and keeps running.
+   Leave this window open too.
 
 ---
 
-## Part E — Using it
+## STEP 14 — Open it and use your phone
 
-- **Click** the screen = tap. **Click-drag** = swipe.
-- **Buttons row:** home · app switcher · lock · volume up/down.
-- **Keyboard:** tick **"Capture my keyboard"**, then whatever you type on the
-  laptop goes to the phone's focused field (Enter/Backspace work).
-- **Clipboard:** "From phone" pulls the phone's clipboard to the box; "To phone"
-  pushes the box's text to the phone. (Reads need WDA in the foreground.)
-- **Fetch text:** dumps the current screen's text as a selectable list you can
-  copy.
-- **Smooth video:** the default is a few-FPS screenshot mirror. For fluid video,
-  set up `qvh` mode — see the "Optional: smooth video with QVH" section of
-  [SETUP.md](SETUP.md).
+1. Open your web browser to **http://127.0.0.1:8000**
+2. Top-right should say **`WDA ✓ connected`** and your phone screen appears.
+3. **Click** the screen to tap, **click and drag** to swipe. The panel on the
+   right has Home, lock, volume, keyboard, clipboard, and a "get text" button.
+
+🎉 Done.
 
 ---
 
-## Every time after the first
+## Doing it again next time (much shorter)
 
-You only repeat:
-1. Plug in the phone.
-2. Admin PowerShell → `.\scripts\start-wda.ps1` → check `:8100/status`.
-3. Normal PowerShell → `.\.venv\Scripts\Activate.ps1` → `python -m uvicorn server.main:app --host 127.0.0.1 --port 8000`.
-4. Open <http://127.0.0.1:8000>.
+The phone app, Python, and files are already set up. Next time you only:
+1. Plug in the iPhone (tap **Trust** if asked).
+2. Admin PowerShell in the project folder → `.\scripts\start-wda.ps1` → check
+   **http://127.0.0.1:8100/status**.
+3. Normal PowerShell in the project folder →
+   `.\.venv\Scripts\Activate.ps1` then
+   `python -m uvicorn server.main:app --host 127.0.0.1 --port 8000`.
+4. Open **http://127.0.0.1:8000**.
 
-(If a week has passed, also redo step 8 to re-sign WDA.)
+(If more than a week has passed, also redo Step 8 to re-add the phone app.)
 
 ---
 
 ## Troubleshooting
 
-| Symptom | Fix |
+| What you see | What to do |
 |---|---|
-| `ios list` shows nothing | Reconnect cable; tap **Trust** on the phone; uninstall Store iTunes/iCloud (step 4). |
-| `:8100/status` fails | WDA not running or signature expired (7-day free-ID limit) — redo steps 8 + 12. |
-| `runwda` errors on iOS 17+ | The `ios tunnel start` admin window isn't running (step 12). |
-| Script won't run | `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass`, then retry. |
-| Status shows `WDA ✗ not reachable` | Redo Part C; make sure the forward window is still open. |
-| Taps land slightly off | The backend auto-scales to WDA's window size; if it persists, note your WDA version in an issue. |
-| Clipboard "From phone" is empty | iOS only allows reads while WDA is in the foreground on the phone. |
+| Step 11 `ios list` shows no device | Unplug/replug the cable; tap **Trust** on the phone; make sure you did Step 5. |
+| `http://127.0.0.1:8100/status` won't load | The phone app isn't running or its 7 days expired — redo Steps 8 and 11. |
+| A window says "runwda" failed | The Administrator tunnel window from Step 11 must stay open. |
+| "running scripts is disabled" | Type `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass`, Enter, then retry. |
+| App page says `WDA ✗ not reachable` | Redo Step 11 and keep those small windows open. |
+| "Get from phone" clipboard is empty | The phone app must be the app showing on your phone's screen at that moment. |
